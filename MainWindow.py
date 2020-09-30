@@ -94,4 +94,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.model = Model([['ass', 'dddd', 'asd']])
         self.tableview.setModel(self.model)
-        self.model.setData([[0, 0]], [['my', 'back', 'hurts']])
+        self.model.setData(['my', 'back', 'hurts'])
+        #self.model.insertRows(1, 1)
+
+        #self.model.removeRow(1)
