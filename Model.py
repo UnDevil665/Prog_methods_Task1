@@ -1,11 +1,13 @@
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtCore import Qt
 import typing
+import PyQt5
 
 
 class Model (QtCore.QAbstractItemModel):
     def __init__(self, datain=None, *args, **kwargs):
         super(Model, self).__init__(*args, **kwargs)
-        self.myTable = datain or [[]]
+        self.myTable = datain or []
 
 #  Дописать условие если данных нет
     def rowCount(self, parent: QtCore.QModelIndex = ...) -> int:
@@ -24,17 +26,27 @@ class Model (QtCore.QAbstractItemModel):
             return QtCore.QModelIndex()
 
     def data(self, index: QtCore.QModelIndex, role: int = ...) -> typing.Any:
-        if index.isValid():
-            if role == QtCore.Qt.DisplayRole:
-                return QtCore.QVariant(self.myTable[index.row()][index.column()])
+        if not index.isValid():
+            return QtCore.QVariant()
 
-    def setData(self, value: typing.Any, role: int = 2, index=QtCore.QModelIndex()) -> bool:
-        print('setData works')
-        if index.isValid() & role == QtCore.Qt.DisplayRole:
-            self.myTable[index.row()][index.column()] = value
-            return True
-        else:
-            return False
+        if (index.row() >= len(self.myTable)) or (index.row() < 0):
+            return QtCore.QVariant()
+
+        if role == QtCore.Qt.DisplayRole:
+            return self.myTable[index.row()][index.column()]
+
+    def headerData(self, section: int, orientation: Qt.Orientation, role: int = ...) -> typing.Any:
+        if not role == QtCore.Qt.DisplayRole:
+            return QtCore.QVariant()
+
+        if Qt.Orientation == Qt.Horizontal:
+            if section == 0:
+                return 'Name'
+            elif section == 1:
+                return 'Second name'
+            else:
+                return QtCore.QVariant()
+        return QtCore.QVariant
 
     def insertRows(self, row: int, count: int, parent=QtCore.QModelIndex()) -> bool:
         print("insertRows on")
@@ -51,6 +63,8 @@ class Model (QtCore.QAbstractItemModel):
         print("insertRow on")
 
         self.myTable.insert(row, "")
+
+        return True
 
     def removeRows(self, row: int, count: int, parent=QtCore.QModelIndex()) -> bool:
         print("removeRows on")
@@ -70,3 +84,20 @@ class Model (QtCore.QAbstractItemModel):
         self.removeRows(row, 1)
 
         return True
+
+    def setData(self, value: typing.Any, role: int = 2, index=QtCore.QModelIndex()) -> bool:
+        print('setData works')
+
+        if index.isValid() and role == QtCore.Qt.DisplayRole:
+            self.myTable[index.row()][index.column()] = value
+            return True
+        else:
+            return False
+
+    def flags(self, index: QtCore.QModelIndex()) -> Qt.ItemFlags:
+        if not index.isValid():
+            return Qt.ItemIsEnabled
+        return QtCore.QAbstractItemModel.flags(self, index) or Qt.ItemIsEditable
+
+    def getTable(self):
+        return self.myTable

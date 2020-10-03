@@ -98,3 +98,34 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #self.model.insertRows(1, 1)
 
         #self.model.removeRow(1)
+
+    def writeToFile (self, fileName: str):
+        file = QtCore.QFile(fileName)
+
+        if not file.open(QtCore.QIODevice.WriteOnly):
+            QtWidgets.QMessageBox.information("Unable to open file", file.errorString())
+            return
+
+        data = self.model.getTable()
+        out = QtCore.QDataStream(file)
+
+        out << data
+
+    def readFromFile(self, fileName: str):
+        file = QtCore.QFile(fileName)
+
+        if not file.open(QtCore.QIODevice.ReadOnly):
+            QtWidgets.QMessageBox.information("Unable to open file")
+            file.errorString()
+            return
+
+        data = self.model.getTable()
+        dataIn = QtCore.QDataStream(file)
+
+        dataIn >> data
+
+        #if len(data) == 0:
+        #    QtWidgets.QMessageBox.information("No Names in file")
+
+
+
