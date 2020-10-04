@@ -64,8 +64,10 @@ class Model (QtCore.QAbstractItemModel):
                 return None
         return None
 
-    def insertRows(self, row: int, count: int, parent=QtCore.QModelIndex()) -> bool:
+    def insertRows(self, row: int = None, count: int = 1, parent=QtCore.QModelIndex()) -> bool:
         print("insertRows on")
+        if row is None:
+            row = self.rowCount()
 
         self.beginInsertRows(parent, row, count + row - 1,)
 
@@ -78,7 +80,7 @@ class Model (QtCore.QAbstractItemModel):
     def insertRow(self, row: int, parent=QtCore.QModelIndex()) -> bool:
         print("insertRow on")
 
-        self.myTable.insert(row, "")
+        self.myTable.insert(row, ["", "", ""])
 
         return True
 

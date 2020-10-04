@@ -95,8 +95,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.model = Model([['ass', 'dddd', 'asd']])
         self.tableview.setModel(self.model)
 
-        self.model.insertRows(1, 1)
+        self.model.insertRows()
+
+        #self.model.insertRow(1)
         index = self.model.index(1, 0)
+
+
         self.model.setData(['my', 'back', 'hurts'], index)
 
 
