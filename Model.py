@@ -7,19 +7,19 @@ import PyQt5
 class Model (QtCore.QAbstractItemModel):
     def __init__(self, datain=None, *args, **kwargs):
         super(Model, self).__init__(*args, **kwargs)
-        self.myTable = datain or []
+        self.myTable = datain or [[]]
 
 #  Дописать условие если данных нет
-    def rowCount(self, parent: QtCore.QModelIndex = ...) -> int:
+    def rowCount(self, parent=QtCore.QModelIndex()) -> int:
         return len(self.myTable)
 
-    def columnCount(self, parent: QtCore.QModelIndex = ...) -> int:
+    def columnCount(self, parent=QtCore.QModelIndex()) -> int:
         return 3
 
     def parent(self, child: QtCore.QModelIndex) -> QtCore.QModelIndex:
         return QtCore.QModelIndex()
 
-    def index(self, row: int, column: int, parent: QtCore.QModelIndex = ...) -> QtCore.QModelIndex:
+    def index(self, row: int, column: int, parent=QtCore.QModelIndex()) -> QtCore.QModelIndex:
         if self.hasIndex(row, column):
             return self.createIndex(row, column)
         else:
@@ -33,7 +33,23 @@ class Model (QtCore.QAbstractItemModel):
             return QtCore.QVariant()
 
         if role == QtCore.Qt.DisplayRole:
-            return self.myTable[index.row()][index.column()]
+            datas = self.myTable[index.row()][index.column()]
+
+            return datas
+
+    def setData(self, value, index: QtCore.QModelIndex, role: int = 0) -> bool:
+        print('setData works')
+
+        if index.isValid() and (role == QtCore.Qt.DisplayRole):
+            row = index.row()
+            column = index.column()
+            data = self.myTable
+            print("data:", data)
+            for i in range(len(value)):
+                self.myTable[row][column + i] = value[i]
+            return True
+        else:
+            return False
 
     def headerData(self, section: int, orientation: Qt.Orientation, role: int = ...) -> typing.Any:
         if not role == QtCore.Qt.DisplayRole:
@@ -45,8 +61,8 @@ class Model (QtCore.QAbstractItemModel):
             elif section == 1:
                 return 'Second name'
             else:
-                return QtCore.QVariant()
-        return QtCore.QVariant
+                return None
+        return None
 
     def insertRows(self, row: int, count: int, parent=QtCore.QModelIndex()) -> bool:
         print("insertRows on")
@@ -84,15 +100,6 @@ class Model (QtCore.QAbstractItemModel):
         self.removeRows(row, 1)
 
         return True
-
-    def setData(self, value: typing.Any, role: int = 2, index=QtCore.QModelIndex()) -> bool:
-        print('setData works')
-
-        if index.isValid() and role == QtCore.Qt.DisplayRole:
-            self.myTable[index.row()][index.column()] = value
-            return True
-        else:
-            return False
 
     def flags(self, index: QtCore.QModelIndex()) -> Qt.ItemFlags:
         if not index.isValid():

@@ -94,9 +94,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.model = Model([['ass', 'dddd', 'asd']])
         self.tableview.setModel(self.model)
-        self.model.setData(['my', 'back', 'hurts'])
-        #self.model.insertRows(1, 1)
 
+        self.model.insertRows(1, 1)
+        index = self.model.index(1, 0)
+        self.model.setData(['my', 'back', 'hurts'], index)
+
+
+       # self.model.setData([['ass', 'dddd', 'asd']], )
         #self.model.removeRow(1)
 
     def writeToFile (self, fileName: str):
