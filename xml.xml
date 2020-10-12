@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<table>
+  <person>
+    <name>Sergey</name>
+    <surname>Herklotz</surname>
+    <thirdname>Sergeevich</thirdname>
+  </person>
+  <person>
+    <name>Ivan</name>
+    <surname>Ivanov</surname>
+    <thirdname>Ivanovich</thirdname>
+  </person>
+  <person>
+    <name>Andrew</name>
+    <surname>Nikishow</surname>
+    <thirdname>Nikishovovich</thirdname>
+  </person>
+</table>

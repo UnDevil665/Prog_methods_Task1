@@ -44,7 +44,6 @@ class Model (QtCore.QAbstractItemModel):
             row = index.row()
             column = index.column()
             data = self.myTable
-            print("data:", data)
             for i in range(len(value)):
                 self.myTable[row][column + i] = value[i]
             return True
@@ -110,3 +109,8 @@ class Model (QtCore.QAbstractItemModel):
 
     def getTable(self):
         return self.myTable
+
+    def insertItem(self, row: int, column: int, newItem):
+        index = self.index(row, column)
+        self.insertRows()
+        self.setData(newItem, index)

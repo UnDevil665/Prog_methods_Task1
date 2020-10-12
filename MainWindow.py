@@ -13,17 +13,17 @@ from Model import Model
 
 
 class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(371, 382)
+    def setupUi(self, mainWindow):
+        mainWindow.setObjectName("mainWindow")
+        mainWindow.resize(371, 382)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
-        MainWindow.setSizePolicy(sizePolicy)
-        MainWindow.setMinimumSize(QtCore.QSize(371, 382))
-        MainWindow.setMaximumSize(QtCore.QSize(371, 382))
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        sizePolicy.setHeightForWidth(mainWindow.sizePolicy().hasHeightForWidth())
+        mainWindow.setSizePolicy(sizePolicy)
+        mainWindow.setMinimumSize(QtCore.QSize(371, 382))
+        mainWindow.setMaximumSize(QtCore.QSize(371, 382))
+        self.centralwidget = QtWidgets.QWidget(mainWindow)
         self.centralwidget.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -40,51 +40,57 @@ class Ui_MainWindow(object):
         self.tableview = QtWidgets.QTableView(self.centralwidget)
         self.tableview.setObjectName("tableview")
         self.gridLayout.addWidget(self.tableview, 1, 0, 1, 3)
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        mainWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(mainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 371, 21))
         self.menubar.setObjectName("menubar")
         self.menu = QtWidgets.QMenu(self.menubar)
         self.menu.setObjectName("menu")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        mainWindow.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(mainWindow)
         self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
-        self.open_action = QtWidgets.QAction(MainWindow)
+        mainWindow.setStatusBar(self.statusbar)
+        self.open_action = QtWidgets.QAction(mainWindow)
         self.open_action.setEnabled(True)
         self.open_action.setWhatsThis("")
         self.open_action.setShortcutContext(QtCore.Qt.WindowShortcut)
         self.open_action.setObjectName("open_action")
-        self.save_action = QtWidgets.QAction(MainWindow)
-        self.save_action.setObjectName("save_action")
-        self.exit_action = QtWidgets.QAction(MainWindow)
+        self.save_action = QtWidgets.QAction(mainWindow)
+        self.save_action.setObjectName("saveAs_action")
+        self.saveAs_action = QtWidgets.QAction(mainWindow)
+        self.saveAs_action.setObjectName("saveAs_action")
+        self.exit_action = QtWidgets.QAction(mainWindow)
         self.exit_action.setObjectName("exit_action")
         self.menu.addAction(self.open_action)
         self.menu.addAction(self.save_action)
+        self.menu.addAction(self.saveAs_action)
         self.menu.addAction(self.exit_action)
         self.menubar.addAction(self.menu.menuAction())
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateUi(mainWindow)
+        QtCore.QMetaObject.connectSlotsByName(mainWindow)
 
-    def retranslateUi(self, MainWindow):
+
+    def retranslateUi(self, mainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Task1_Var5"))
-        self.add_button.setStatusTip(_translate("MainWindow", "\"Add new string\""))
-        self.add_button.setText(_translate("MainWindow", "Add"))
-        self.change_button.setStatusTip(_translate("MainWindow", "\"Change selected string\""))
-        self.change_button.setText(_translate("MainWindow", "Change"))
-        self.de_button.setStatusTip(_translate("MainWindow", "\"Delete selected string\""))
-        self.de_button.setText(_translate("MainWindow", "Delete"))
-        self.menu.setStatusTip(_translate("MainWindow", "\"File menu\""))
-        self.menu.setWhatsThis(_translate("MainWindow", "Menu for working with file"))
-        self.menu.setTitle(_translate("MainWindow", "File"))
-        self.open_action.setText(_translate("MainWindow", "Open"))
-        self.open_action.setStatusTip(_translate("MainWindow", "\"Open existing  file\""))
-        self.save_action.setText(_translate("MainWindow", "Save"))
-        self.save_action.setStatusTip(_translate("MainWindow", "\"Save current file\""))
-        self.exit_action.setText(_translate("MainWindow", "Exit"))
-        self.exit_action.setStatusTip(_translate("MainWindow", "\"exit\""))
+        mainWindow.setWindowTitle(_translate("mainWindow", "Task1_Var5"))
+        self.add_button.setStatusTip(_translate("mainWindow", "\"Add new string\""))
+        self.add_button.setText(_translate("mainWindow", "Add"))
+        self.change_button.setStatusTip(_translate("mainWindow", "\"Change selected string\""))
+        self.change_button.setText(_translate("mainWindow", "Change"))
+        self.de_button.setStatusTip(_translate("mainWindow", "\"Delete selected string\""))
+        self.de_button.setText(_translate("mainWindow", "Delete"))
+        self.menu.setStatusTip(_translate("mainWindow", "\"File menu\""))
+        self.menu.setWhatsThis(_translate("mainWindow", "Menu for working with file"))
+        self.menu.setTitle(_translate("mainWindow", "File"))
+        self.open_action.setText(_translate("mainWindow", "Open"))
+        self.open_action.setStatusTip(_translate("mainWindow", "\"Open existing  file\""))
+        self.save_action.setText(_translate("mainWindow", "Save"))
+        self.save_action.setStatusTip(_translate("mainWindow", "\"Save current file\""))
+        self.saveAs_action.setText(_translate("mainWindow", "Save as ..."))
+        self.saveAs_action.setStatusTip(_translate("mainWindow", "\"Save current file as ...\""))
+        self.exit_action.setText(_translate("mainWindow", "Exit"))
+        self.exit_action.setStatusTip(_translate("mainWindow", "\"exit\""))
 
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -92,48 +98,62 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         QtWidgets.QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
-        self.model = Model([['ass', 'dddd', 'asd']])
+        self.model = Model([['abc', 'def', 'ghi']])
         self.tableview.setModel(self.model)
 
+        self.open_action.triggered.connect(self.readFromFile)
+
         self.model.insertRows()
-
-        #self.model.insertRow(1)
         index = self.model.index(1, 0)
-
 
         self.model.setData(['my', 'back', 'hurts'], index)
 
+        self.model.insertItem(2, 0, ['my', 'ass', 'too'])
 
-       # self.model.setData([['ass', 'dddd', 'asd']], )
+        #self.model.setData([['ass', 'dddd', 'asd']], index)
         #self.model.removeRow(1)
 
-    def writeToFile (self, fileName: str):
-        file = QtCore.QFile(fileName)
+    def writeToFile(self, fileName: str):
 
-        if not file.open(QtCore.QIODevice.WriteOnly):
-            QtWidgets.QMessageBox.information("Unable to open file", file.errorString())
+        fileName, sfilter = QtWidgets.QFileDialog.getOpenFileName(self, "Выбор файла для открытия")
+        file = QtCore.QFile(fileName)
+        
+        if not file.open(QtCore.QIODevice.Append or QtCore.QIODevice.Text):
+            QtWidgets.QMessageBox.information(self, "Unable to open file", file.errorString())
             return
 
         data = self.model.getTable()
-        out = QtCore.QDataStream(file)
 
-        out << data
+        for i in data:
+            for j in i:
+                file.write()
 
     def readFromFile(self, fileName: str):
+
+        fileName, sfilter = QtWidgets.QFileDialog.getOpenFileName(self, "Выбор файла для открытия")
         file = QtCore.QFile(fileName)
 
         if not file.open(QtCore.QIODevice.ReadOnly):
-            QtWidgets.QMessageBox.information("Unable to open file")
+            QtWidgets.QMessageBox.information(self, "Unable to open file", file.errorString())
             file.errorString()
             return
 
         data = self.model.getTable()
-        dataIn = QtCore.QDataStream(file)
+        dataIn = file.readAll()
 
-        dataIn >> data
+        print(QtCore.QTextCodec.codecForUtfText(dataIn).toUnicode(dataIn))
 
-        #if len(data) == 0:
-        #    QtWidgets.QMessageBox.information("No Names in file")
+        # file.close()
+        # #if len(data) == 0:
+        # #    QtWidgets.QMessageBox.information("No Names in file")
+        #
+        # xfile = QtCore.QFile('xml.xml')
+        # if xfile.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text):
+        #     fxml = QtCore.QXmlStreamReader(xfile)
+        #
+        #     while fxml.readNextStartElement():
+        #         print(fxml.readElementText())
+                
 
-
-
+        # xfile.close()
+        # return fileName
