@@ -70,7 +70,6 @@ class Ui_MainWindow(object):
         self.retranslateUi(mainWindow)
         QtCore.QMetaObject.connectSlotsByName(mainWindow)
 
-
     def retranslateUi(self, mainWindow):
         _translate = QtCore.QCoreApplication.translate
         mainWindow.setWindowTitle(_translate("mainWindow", "Task1_Var5"))
@@ -102,6 +101,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.tableview.setModel(self.model)
 
         self.open_action.triggered.connect(self.readFromFile)
+        self.save_action.triggered.connect(self.writeToFile)
 
         self.model.insertRows()
         index = self.model.index(1, 0)
@@ -110,16 +110,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.model.insertItem(2, 0, ['my', 'ass', 'too'])
 
-        #self.model.setData([['ass', 'dddd', 'asd']], index)
-        #self.model.removeRow(1)
+        # self.model.setData([['ass', 'dddd', 'asd']], index)
+        # self.model.removeRow(1)
 
-    def writeToFile(self, fileName: str):
+    def writeToFile(self, filename: str):
+        savedialog = QtWidgets.QFileDialog(self)
+        savedialog.setFileMode(savedialog.AnyFile)
+        savedialog.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
 
-        fileName, sfilter = QtWidgets.QFileDialog.getOpenFileName(self, "Выбор файла для открытия")
-        file = QtCore.QFile(fileName)
-        
+        filename, sfilter = savedialog.getOpenFileName(self, "Выбор файла для сохранения")
+        file = QtCore.QFile(filename)
+
         if not file.open(QtCore.QIODevice.Append or QtCore.QIODevice.Text):
-            QtWidgets.QMessageBox.information(self, "Unable to open file", file.errorString())
+            QtWidgets.QMessageBox.information(self, "Unable to save file", file.errorString())
             return
 
         data = self.model.getTable()
@@ -128,12 +131,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             for j in i:
                 file.write()
 
-    def readFromFile(self, fileName: str):
+    def readFromFile(self, filename: str):
+        opendialog = QtWidgets.QFileDialog(self)
+        opendialog.setAcceptMode(QtWidgets.QFileDialog.AcceptOpen)
 
-        fileName, sfilter = QtWidgets.QFileDialog.getOpenFileName(self, "Выбор файла для открытия")
-        file = QtCore.QFile(fileName)
+        filename, sfilter = opendialog.getOpenFileName(self, "Выбор файла для открытия")
+        file = QtCore.QFile(filename)
 
-        if not file.open(QtCore.QIODevice.ReadOnly):
+        if not file.open(QtCore.QIODevice.ReadOnly) and filename is True:
             QtWidgets.QMessageBox.information(self, "Unable to open file", file.errorString())
             file.errorString()
             return
@@ -153,7 +158,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #
         #     while fxml.readNextStartElement():
         #         print(fxml.readElementText())
-                
 
         # xfile.close()
         # return fileName
