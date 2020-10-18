@@ -7,7 +7,7 @@ import PyQt5
 class Model (QtCore.QAbstractItemModel):
     def __init__(self, datain=None, *args, **kwargs):
         super(Model, self).__init__(*args, **kwargs)
-        self.myTable = datain or [[]]
+        self.myTable = []
 
 #  Дописать условие если данных нет
     def rowCount(self, parent=QtCore.QModelIndex()) -> int:
@@ -32,7 +32,7 @@ class Model (QtCore.QAbstractItemModel):
         if (index.row() >= len(self.myTable)) or (index.row() < 0):
             return QtCore.QVariant()
 
-        if role == QtCore.Qt.DisplayRole:
+        if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
             datas = self.myTable[index.row()][index.column()]
 
             return datas
@@ -40,7 +40,7 @@ class Model (QtCore.QAbstractItemModel):
     def setData(self, value, index: QtCore.QModelIndex, role: int = 0) -> bool:
         print('setData works')
 
-        if index.isValid() and (role == QtCore.Qt.DisplayRole):
+        if index.isValid() :
             row = index.row()
             column = index.column()
             data = self.myTable
@@ -59,6 +59,9 @@ class Model (QtCore.QAbstractItemModel):
                 return 'Name'
             elif section == 1:
                 return 'Second name'
+
+            elif section == 2:
+                return "third name"
             else:
                 return None
         return None
@@ -105,12 +108,8 @@ class Model (QtCore.QAbstractItemModel):
     def flags(self, index: QtCore.QModelIndex()) -> Qt.ItemFlags:
         if not index.isValid():
             return Qt.ItemIsEnabled
-        return QtCore.QAbstractItemModel.flags(self, index) or Qt.ItemIsEditable
+        return Qt.ItemIsEnabled or Qt.ItemIsEditable or Qt.ItemIsSelectable
 
     def getTable(self):
         return self.myTable
 
-    def insertItem(self, row: int, column: int, newItem):
-        index = self.index(row, column)
-        self.insertRows()
-        self.setData(newItem, index)
