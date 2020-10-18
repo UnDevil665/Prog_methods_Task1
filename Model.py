@@ -37,7 +37,7 @@ class Model (QtCore.QAbstractItemModel):
 
             return datas
 
-    def setData(self, value, index: QtCore.QModelIndex, role: int = 0) -> bool:
+    def setData(self, index: QtCore.QModelIndex, value, role: int = 0) -> bool:
         print('setData works')
 
         if index.isValid() :

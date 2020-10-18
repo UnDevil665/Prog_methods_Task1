@@ -100,15 +100,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.model = Model()
         self.tableview.setModel(self.model)
 
+
+
         self.open_action.triggered.connect(self.readFromFile)
         self.save_action.triggered.connect(self.writeToFile)
         self.add_button.pressed.connect(self.addElement)
+        self.change_button.pressed.connect(self.changeElement)
+
 
     def insertItem(self, row: int, column: int, newItem):
         self.model.insertRows()
         index = self.model.index(row, column)
 
-        self.model.setData(newItem, index)
+        self.model.setData(index, newItem)
 
     def addItem(self, newItem):
         row = self.model.rowCount()
@@ -118,7 +122,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.model.insertRows()
         index = self.model.index(row, column)
 
-        self.model.setData(newItem, index)
+        self.model.setData(index, newItem)
 
     def writeToFile(self, filename: str):
         savedialog = QtWidgets.QFileDialog(self)
@@ -175,9 +179,47 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         index = self.model.index(row, column)
 
-        self.model.setData(['my', 'ass', 'fuu'], index, 2)
+        self.model.setData(index, ['my', 'ass', 'fuu'], 2)
 
         # edit = QtWidgets.QItemDelegate(self)
         #
         # edit.createEditor(self, QtWidgets)
         # edit.setEditorData()
+
+    def changeElement(self):
+        print("change_element works")
+        delegate = Delegate(self)
+        self.tableview.setItemDelegate(delegate)
+
+        row = 2
+        column = 0
+
+        index = self.model.index(row, column)
+        editor = delegate.createEditor(self.tableview)
+        delegate.setEditorData(index, editor)
+
+        editor.foc
+       # delegate.setModelData(editor, self.model, index)
+
+class Delegate(QtWidgets.QStyledItemDelegate):
+    def __init__(self, parent=None):
+        print("init works")
+        super().__init__(parent)
+
+    def createEditor(self, parent: QtWidgets.QWidget, option: QtWidgets.QStyleOptionViewItem = None, index: QtCore.QModelIndex = None) -> QtWidgets.QWidget:
+        print("createworks")
+        self.dlineedit = QtWidgets.QLineEdit(parent)
+        return self.dlineedit
+
+    # Передача данных в редактор
+    def setEditorData(self, index: QtCore.QModelIndex, editor: QtWidgets.QWidget) -> None:
+        value = index.model().data(index, QtCore.Qt.EditRole)
+
+        print(value)
+        self.dlineedit.setText(value)
+        print("seteditor works")
+
+    def setModelData(self, editor: QtWidgets.QWidget, model: QtCore.QAbstractItemModel, index: QtCore.QModelIndex) -> None:
+        if not editor.hasFocus():
+            model.setData(index, [self.dlineedit.text(), self.dlineedit.text(), self.dlineedit.text()])
+            print("setmodel works")
