@@ -128,7 +128,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         filename, sfilter = savedialog.getOpenFileName(self, "Выбор файла для сохранения")
         file = QtCore.QFile(filename)
 
-        if not file.open(QtCore.QIODevice.Append or QtCore.QIODevice.Text):
+        if not file.open(QtCore.QIODevice.Append):
             QtWidgets.QMessageBox.information(self, "Unable to save file", file.errorString())
             return
 
@@ -150,7 +150,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             file.errorString()
             return
 
-        data = list()
         xfile = QtCore.QFile(filename)
         if xfile.open(QtCore.QFile.ReadOnly or QtCore.QFile.Text):
             fxml = ET.parse(filename).getroot()
