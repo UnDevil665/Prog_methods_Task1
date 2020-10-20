@@ -99,8 +99,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.model = Model()
         self.tableview.setModel(self.model)
-
-
+        self.tableview.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 
         self.open_action.triggered.connect(self.readFromFile)
         self.save_action.triggered.connect(self.writeToFile)
@@ -177,6 +176,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         column = 0
         self.model.insertRows()
 
+
         index = self.model.index(row, column)
 
         self.model.setData(index, ['my', 'ass', 'fuu'], 2)
@@ -191,22 +191,25 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         delegate = Delegate(self)
         self.tableview.setItemDelegate(delegate)
 
-        row = 2
+
+        row = 0
         column = 0
 
         index = self.model.index(row, column)
-        editor = delegate.createEditor(self.tableview)
+        editor = delegate.createEditor(self.tableview, index)
         delegate.setEditorData(index, editor)
 
-        editor.foc
-       # delegate.setModelData(editor, self.model, index)
+        delegate.setModelData(editor, self.model, index)
+
+        print(self.model.flags(index))
 
 class Delegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, parent=None):
         print("init works")
         super().__init__(parent)
 
-    def createEditor(self, parent: QtWidgets.QWidget, option: QtWidgets.QStyleOptionViewItem = None, index: QtCore.QModelIndex = None) -> QtWidgets.QWidget:
+    def createEditor(self, parent: QtWidgets.QWidget, index: QtCore.QModelIndex,
+                     option: QtWidgets.QStyleOptionViewItem = None) -> QtWidgets.QWidget:
         print("createworks")
         self.dlineedit = QtWidgets.QLineEdit(parent)
         return self.dlineedit
@@ -217,9 +220,11 @@ class Delegate(QtWidgets.QStyledItemDelegate):
 
         print(value)
         self.dlineedit.setText(value)
+        print(self.dlineedit.text())
         print("seteditor works")
 
-    def setModelData(self, editor: QtWidgets.QWidget, model: QtCore.QAbstractItemModel, index: QtCore.QModelIndex) -> None:
+    def setModelData(self, editor: QtWidgets.QWidget, model: QtCore.QAbstractItemModel,
+                     index: QtCore.QModelIndex) -> None:
         if not editor.hasFocus():
             model.setData(index, [self.dlineedit.text(), self.dlineedit.text(), self.dlineedit.text()])
             print("setmodel works")
