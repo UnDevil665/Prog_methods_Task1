@@ -22,7 +22,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(mainWindow.sizePolicy().hasHeightForWidth())
         mainWindow.setSizePolicy(sizePolicy)
         mainWindow.setMinimumSize(QtCore.QSize(371, 382))
-        mainWindow.setMaximumSize(QtCore.QSize(371, 382))
+        mainWindow.setMaximumSize(QtCore.QSize(10000, 10000))
         self.centralwidget = QtWidgets.QWidget(mainWindow)
         self.centralwidget.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.centralwidget.setObjectName("centralwidget")
@@ -37,9 +37,9 @@ class Ui_MainWindow(object):
         self.de_button = QtWidgets.QPushButton(self.centralwidget)
         self.de_button.setObjectName("de_button")
         self.gridLayout.addWidget(self.de_button, 0, 2, 1, 1)
-        self.tableview = QtWidgets.QTableView(self.centralwidget)
-        self.tableview.setObjectName("tableview")
-        self.gridLayout.addWidget(self.tableview, 1, 0, 1, 3)
+        self.listview = QtWidgets.QListView(self.centralwidget)
+        self.listview.setObjectName("listview")
+        self.gridLayout.addWidget(self.listview, 1, 0, 1, 3)
         mainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(mainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 371, 21))
@@ -98,22 +98,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
         self.model = Model()
-        self.tableview.setModel(self.model)
-        self.tableview.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.listview.setModel(self.model)
 
         self.open_action.triggered.connect(self.readFromFile)
         self.save_action.triggered.connect(self.writeToFile)
         self.add_button.pressed.connect(self.addElement)
-        self.change_button.pressed.connect(self.changeElement)
+        #self.change_button.pressed.connect(self.changeElement)
 
-
-    def insertItem(self, row: int, column: int, newItem):
+    def insertItem(self, row: int, newitem, column: int = 0):
         self.model.insertRows()
         index = self.model.index(row, column)
 
-        self.model.setData(index, newItem)
+        self.model.setData(index, newitem)
 
-    def addItem(self, newItem):
+    def addItem(self, newitem):
         row = self.model.rowCount()
         column = 0
 
@@ -121,7 +119,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.model.insertRows()
         index = self.model.index(row, column)
 
-        self.model.setData(index, newItem)
+        self.model.setData(index, newitem)
 
     def writeToFile(self, filename: str):
         savedialog = QtWidgets.QFileDialog(self)
@@ -159,11 +157,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             persons = fxml.findall('person')
 
             for p in persons:
-                input = [p.find('name').text,
-                         p.find('surname').text,
-                         p.find('thirdname').text]
-
-                print(str(self.model.rowCount()) + " " + str(self.model.columnCount()))
+                input = p.text()
 
                 print(self.model.myList)
                 self.addItem(input)
@@ -173,13 +167,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def addElement(self):
         row = self.model.rowCount()
-        column = 0
         self.model.insertRows()
 
+        index = self.model.index(row)
 
-        index = self.model.index(row, column)
-
-        self.model.setData(index, ['my', 'ass', 'fuu'], 2)
+        self.model.setData(index, 'my ass fuu', 0)
 
         # edit = QtWidgets.QItemDelegate(self)
         #
@@ -188,20 +180,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def changeElement(self):
         print("change_element works")
-        delegate = Delegate(self)
-        self.tableview.setItemDelegate(delegate)
+        # delegate = Delegate(self)
+        # self.listview.setItemDelegate(delegate)
 
 
         row = 0
         column = 0
 
         index = self.model.index(row, column)
-        editor = delegate.createEditor(self.tableview, index)
-        delegate.setEditorData(index, editor)
+        # editor = delegate.createEditor(self.listview, index)
+        # delegate.setEditorData(index, editor)
+        #
+        # delegate.setModelData(editor, self.model, index)
+        #
+        # print(self.model.flags(index))
 
-        delegate.setModelData(editor, self.model, index)
-
-        print(self.model.flags(index))
 
 class Delegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, parent=None):
@@ -226,5 +219,5 @@ class Delegate(QtWidgets.QStyledItemDelegate):
     def setModelData(self, editor: QtWidgets.QWidget, model: QtCore.QAbstractItemModel,
                      index: QtCore.QModelIndex) -> None:
         if not editor.hasFocus():
-            model.setData(index, [self.dlineedit.text(), self.dlineedit.text(), self.dlineedit.text()])
+            model.setData(index, self.dlineedit.text())
             print("setmodel works")
