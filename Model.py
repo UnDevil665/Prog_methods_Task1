@@ -105,10 +105,12 @@ class Model (QtCore.QAbstractItemModel):
 
         return True
 
-    def flags(self, index: QtCore.QModelIndex()) -> Qt.ItemFlags:
+    def flags(self, index: QtCore.QModelIndex):
         if not index.isValid():
             return Qt.ItemIsEnabled
-        return Qt.ItemIsEnabled or Qt.ItemIsEditable or Qt.ItemIsSelectable
+        return Qt.ItemIsEnabled | Qt.ItemIsEditable | Qt.ItemIsSelectable
+
+
 
     def getTable(self):
         return self.myTable
