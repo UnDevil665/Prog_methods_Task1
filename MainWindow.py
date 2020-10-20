@@ -135,7 +135,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             QtWidgets.QMessageBox.information(self, "Unable to save file", file.errorString())
             return
 
-        data = self.model.getTable()
+        data = self.model.getList()
 
         for i in data:
             for j in i:
@@ -165,7 +165,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
                 print(str(self.model.rowCount()) + " " + str(self.model.columnCount()))
 
-                print(self.model.myTable)
+                print(self.model.myList)
                 self.addItem(input)
         xfile.close()
 

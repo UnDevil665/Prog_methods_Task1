@@ -7,14 +7,14 @@ import PyQt5
 class Model (QtCore.QAbstractItemModel):
     def __init__(self, datain=None, *args, **kwargs):
         super(Model, self).__init__(*args, **kwargs)
-        self.myTable = []
+        self.myList = []
 
 #  Дописать условие если данных нет
     def rowCount(self, parent=QtCore.QModelIndex()) -> int:
-        return len(self.myTable)
+        return len(self.myList)
 
     def columnCount(self, parent=QtCore.QModelIndex()) -> int:
-        return 3
+        return 1
 
     def parent(self, child: QtCore.QModelIndex) -> QtCore.QModelIndex:
         return QtCore.QModelIndex()
@@ -29,23 +29,21 @@ class Model (QtCore.QAbstractItemModel):
         if not index.isValid():
             return QtCore.QVariant()
 
-        if (index.row() >= len(self.myTable)) or (index.row() < 0):
+        if (index.row() >= len(self.myList)) or (index.row() < 0):
             return QtCore.QVariant()
 
-        if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
-            datas = self.myTable[index.row()][index.column()]
+        if role == QtCore.Qt.DisplayRole | role == QtCore.Qt.EditRole:
+            datas = self.myList[index.row()]
 
             return datas
 
     def setData(self, index: QtCore.QModelIndex, value, role: int = 0) -> bool:
         print('setData works')
 
-        if index.isValid() :
+        if index.isValid():
             row = index.row()
-            column = index.column()
-            data = self.myTable
-            for i in range(len(value)):
-                self.myTable[row][column + i] = value[i]
+
+            self.myList[row] = value
             return True
         else:
             return False
@@ -74,7 +72,7 @@ class Model (QtCore.QAbstractItemModel):
         self.beginInsertRows(parent, row, count + row - 1,)
 
         for i in range(count):
-            self.myTable.insert(row, ["", "", ""])
+            self.myList.insert(row, "")
 
         self.endInsertRows()
         return True
@@ -82,7 +80,7 @@ class Model (QtCore.QAbstractItemModel):
     def insertRow(self, row: int, parent=QtCore.QModelIndex()) -> bool:
         print("insertRow on")
 
-        self.myTable.insert(row, ["", "", ""])
+        self.myList.insert(row, "")
 
         return True
 
@@ -92,7 +90,7 @@ class Model (QtCore.QAbstractItemModel):
         self.beginRemoveRows(parent, row, count + row - 1)
 
         for i in range(count):
-            self.myTable.pop(row)
+            self.myList.pop(row)
 
         self.endRemoveRows()
 
@@ -110,8 +108,6 @@ class Model (QtCore.QAbstractItemModel):
             return Qt.ItemIsEnabled
         return Qt.ItemIsEnabled | Qt.ItemIsEditable | Qt.ItemIsSelectable
 
-
-
-    def getTable(self):
-        return self.myTable
+    def getList(self):
+        return self.myList
 
