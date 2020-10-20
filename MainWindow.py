@@ -103,23 +103,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.open_action.triggered.connect(self.readFromFile)
         self.save_action.triggered.connect(self.writeToFile)
         self.add_button.pressed.connect(self.addElement)
+        self.de_button.pressed.connect(self.deleteElement)
         #self.change_button.pressed.connect(self.changeElement)
-
-    def insertItem(self, row: int, newitem, column: int = 0):
-        self.model.insertRows()
-        index = self.model.index(row, column)
-
-        self.model.setData(index, newitem)
 
     def addItem(self, newitem):
         row = self.model.rowCount()
         column = 0
 
-        print(row, " ", column)
         self.model.insertRows()
         index = self.model.index(row, column)
 
         self.model.setData(index, newitem)
+
+    def deleteItem(self, delitem):
+        row = self.model.rowCount()
 
     def writeToFile(self, filename: str):
         savedialog = QtWidgets.QFileDialog(self)
@@ -157,9 +154,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             persons = fxml.findall('person')
 
             for p in persons:
-                input = p.text()
+                input = p.text
 
-                print(self.model.myList)
+                print(p)
                 self.addItem(input)
         xfile.close()
 
@@ -195,6 +192,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #
         # print(self.model.flags(index))
 
+    def deleteElement(self):
+        row = self.model.rowCount()
+        self.model.insertRows()
+        print(row)
+        index = self.model.index(row)
+
+        self.model.removeRows(row)
 
 class Delegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, parent=None):
