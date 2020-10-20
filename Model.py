@@ -19,7 +19,7 @@ class Model (QtCore.QAbstractItemModel):
     def parent(self, child: QtCore.QModelIndex) -> QtCore.QModelIndex:
         return QtCore.QModelIndex()
 
-    def index(self, row: int, column: int, parent=QtCore.QModelIndex()) -> QtCore.QModelIndex:
+    def index(self, row: int, column: int = 0, parent=QtCore.QModelIndex()) -> QtCore.QModelIndex:
         if self.hasIndex(row, column):
             return self.createIndex(row, column)
         else:
@@ -32,7 +32,7 @@ class Model (QtCore.QAbstractItemModel):
         if (index.row() >= len(self.myList)) or (index.row() < 0):
             return QtCore.QVariant()
 
-        if role == QtCore.Qt.DisplayRole | role == QtCore.Qt.EditRole:
+        if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
             datas = self.myList[index.row()]
 
             return datas
@@ -54,12 +54,7 @@ class Model (QtCore.QAbstractItemModel):
 
         if Qt.Orientation == Qt.Horizontal:
             if section == 0:
-                return 'Name'
-            elif section == 1:
-                return 'Second name'
-
-            elif section == 2:
-                return "third name"
+                return 'Data'
             else:
                 return None
         return None
