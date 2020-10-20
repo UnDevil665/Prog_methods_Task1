@@ -79,16 +79,16 @@ class Model (QtCore.QAbstractItemModel):
 
         return True
 
-    def removeRows(self, row: int, count: int, parent=QtCore.QModelIndex()) -> bool:
+    def removeRows(self, row: int, count: int = 1, parent=QtCore.QModelIndex()) -> bool:
         print("removeRows on")
 
         self.beginRemoveRows(parent, row, count + row - 1)
 
         for i in range(count):
-            self.myList.pop(row)
+            self.myList.pop(row - 1)
 
         self.endRemoveRows()
-
+        print(self.myList)
         return True
 
     def removeRow(self, row: int, parent=QtCore.QModelIndex()) -> bool:
