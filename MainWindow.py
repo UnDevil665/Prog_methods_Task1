@@ -9,6 +9,8 @@
 
 import xml.etree.ElementTree as ET
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QWidget
+from PyQt5.QtCore import Qt
 from Model import Model
 
 
@@ -99,12 +101,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.model = Model()
         self.listview.setModel(self.model)
+        self.selection = QtCore.QItemSelectionModel(self.model)
+        self.listview.setSelectionModel(self.selection)
+        delegate = Delegate()
+       # self.listview.setItemDelegate(delegate)
 
         self.open_action.triggered.connect(self.readFromFile)
         self.save_action.triggered.connect(self.writeToFile)
         self.add_button.pressed.connect(self.addElement)
         self.de_button.pressed.connect(self.deleteElement)
-        #self.change_button.pressed.connect(self.changeElement)
+        self.change_button.pressed.connect(self.changeElement)
 
     def addItem(self, newitem):
         row = self.model.rowCount()
@@ -170,58 +176,53 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.model.setData(index, 'my ass fuu', 0)
 
-        # edit = QtWidgets.QItemDelegate(self)
-        #
-        # edit.createEditor(self, QtWidgets)
-        # edit.setEditorData()
-
     def changeElement(self):
         print("change_element works")
-        # delegate = Delegate(self)
-        # self.listview.setItemDelegate(delegate)
 
+        index = self.selection.currentIndex()
+        print(index.row(), index.column())
 
-        row = 0
-        column = 0
+        print(self.model.flags(index))
 
-        index = self.model.index(row, column)
-        # editor = delegate.createEditor(self.listview, index)
-        # delegate.setEditorData(index, editor)
-        #
-        # delegate.setModelData(editor, self.model, index)
-        #
-        # print(self.model.flags(index))
+        dele = Delegate(self)
+        editor = dele.createEditor(self.listview, QtWidgets.QStyleOptionViewItem(), index)
+        dele.setEditorData(editor, index)
+        #Удолить
+        editor.editingFinished.connect(dele.setModelData(editor, self.model, index))
+
 
     def deleteElement(self):
         row = self.model.rowCount()
-        self.model.insertRows()
         print(row)
         index = self.model.index(row)
 
         self.model.removeRows(row)
 
-class Delegate(QtWidgets.QStyledItemDelegate):
-    def __init__(self, parent=None):
-        print("init works")
-        super().__init__(parent)
 
-    def createEditor(self, parent: QtWidgets.QWidget, index: QtCore.QModelIndex,
-                     option: QtWidgets.QStyleOptionViewItem = None) -> QtWidgets.QWidget:
+class Delegate(QtWidgets.QStyledItemDelegate):
+    def createEditor(self, parent: QWidget, option: QtWidgets.QStyleOptionViewItem,
+                     index: QtCore.QModelIndex) -> QtWidgets:
         print("createworks")
-        self.dlineedit = QtWidgets.QLineEdit(parent)
-        return self.dlineedit
+        dlineedit = QtWidgets.QLineEdit(parent)
+        parent.setIndexWidget(index, dlineedit)
+        dlineedit.setHidden(False)
+        return dlineedit
 
     # Передача данных в редактор
-    def setEditorData(self, index: QtCore.QModelIndex, editor: QtWidgets.QWidget) -> None:
+    def setEditorData(self, editor: QWidget, index: QtCore.QModelIndex) -> None:
         value = index.model().data(index, QtCore.Qt.EditRole)
 
         print(value)
-        self.dlineedit.setText(value)
-        print(self.dlineedit.text())
+        editor.setText(value)
+        print(editor.text())
         print("seteditor works")
+        editor.setFocus()
 
-    def setModelData(self, editor: QtWidgets.QWidget, model: QtCore.QAbstractItemModel,
-                     index: QtCore.QModelIndex) -> None:
-        if not editor.hasFocus():
-            model.setData(index, self.dlineedit.text())
+
+    def setModelData(self, editor: QWidget, model: QtCore.QAbstractItemModel, index: QtCore.QModelIndex):
+            model.setData(index, editor.text())
             print("setmodel works")
+
+    # def editorEvent(self, event: QtCore.QEvent, model: QtCore.QAbstractItemModel,
+    #                 option: QtWidgets.QStyleOptionViewItem, index: QtCore.QModelIndex) -> bool:
+    #     if event.type() ==
