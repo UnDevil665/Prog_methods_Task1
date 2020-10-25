@@ -199,8 +199,6 @@ class Delegate(QtWidgets.QStyledItemDelegate):
                      index: QtCore.QModelIndex) -> QtWidgets:
         print("createworks")
         dlineedit = QtWidgets.QLineEdit(parent)
-        # parent.setIndexWidget(index, dlineedit)
-        # dlineedit.setHidden(False)
         return dlineedit
 
     # Передача данных в редактор
@@ -215,15 +213,6 @@ class Delegate(QtWidgets.QStyledItemDelegate):
     def setModelData(self, editor: QWidget, model: QtCore.QAbstractItemModel, index: QtCore.QModelIndex):
         model.setData(index, editor.text(), Qt.EditRole)
         print("setmodel works")
-
-    # def editorEvent(self, event: QtCore.QEvent, model: QtCore.QAbstractItemModel,
-    #                 option: QtWidgets.QStyleOptionViewItem, index: QtCore.QModelIndex) -> bool:
-    #     super(Delegate, self).editorEvent(event, model, option, index)
-
-
-
-
-
 
     def updateEditorGeometry(self, editor: QWidget, option: QtWidgets.QStyleOptionViewItem,
                              index: QtCore.QModelIndex) -> None:
