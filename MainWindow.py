@@ -103,8 +103,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.listview.setModel(self.model)
         self.selection = QtCore.QItemSelectionModel(self.model)
         self.listview.setSelectionModel(self.selection)
-        delegate = Delegate()
-       # self.listview.setItemDelegate(delegate)
+        self.delegate = Delegate()
+        self.listview.setItemDelegate(self.delegate)
+        self.listview.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 
         self.open_action.triggered.connect(self.readFromFile)
         self.save_action.triggered.connect(self.writeToFile)
@@ -181,15 +182,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         index = self.selection.currentIndex()
         print(index.row(), index.column())
-
+        self.listview.edit(index)
         print(self.model.flags(index))
-
-        dele = Delegate(self)
-        editor = dele.createEditor(self.listview, QtWidgets.QStyleOptionViewItem(), index)
-        dele.setEditorData(editor, index)
-        #Удолить
-        editor.editingFinished.connect(dele.setModelData(editor, self.model, index))
-
 
     def deleteElement(self):
         row = self.model.rowCount()
@@ -200,29 +194,37 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
 class Delegate(QtWidgets.QStyledItemDelegate):
+
     def createEditor(self, parent: QWidget, option: QtWidgets.QStyleOptionViewItem,
                      index: QtCore.QModelIndex) -> QtWidgets:
         print("createworks")
         dlineedit = QtWidgets.QLineEdit(parent)
-        parent.setIndexWidget(index, dlineedit)
-        dlineedit.setHidden(False)
+        # parent.setIndexWidget(index, dlineedit)
+        # dlineedit.setHidden(False)
         return dlineedit
 
     # Передача данных в редактор
     def setEditorData(self, editor: QWidget, index: QtCore.QModelIndex) -> None:
         value = index.model().data(index, QtCore.Qt.EditRole)
-
         print(value)
         editor.setText(value)
         print(editor.text())
         print("seteditor works")
         editor.setFocus()
 
-
     def setModelData(self, editor: QWidget, model: QtCore.QAbstractItemModel, index: QtCore.QModelIndex):
-            model.setData(index, editor.text())
-            print("setmodel works")
+        model.setData(index, editor.text(), Qt.EditRole)
+        print("setmodel works")
 
     # def editorEvent(self, event: QtCore.QEvent, model: QtCore.QAbstractItemModel,
     #                 option: QtWidgets.QStyleOptionViewItem, index: QtCore.QModelIndex) -> bool:
-    #     if event.type() ==
+    #     super(Delegate, self).editorEvent(event, model, option, index)
+
+
+
+
+
+
+    def updateEditorGeometry(self, editor: QWidget, option: QtWidgets.QStyleOptionViewItem,
+                             index: QtCore.QModelIndex) -> None:
+        editor.setGeometry(option.rect)
