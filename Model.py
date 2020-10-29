@@ -107,3 +107,6 @@ class Model (QtCore.QAbstractItemModel):
     def getList(self):
         return self.myList
 
+    def deleteAll(self):
+        self.myList.clear()
+
