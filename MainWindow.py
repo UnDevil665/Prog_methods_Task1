@@ -58,7 +58,7 @@ class Ui_MainWindow(object):
         self.open_action.setShortcutContext(QtCore.Qt.WindowShortcut)
         self.open_action.setObjectName("open_action")
         self.save_action = QtWidgets.QAction(mainWindow)
-        self.save_action.setObjectName("saveAs_action")
+        self.save_action.setObjectName("save_action")
         self.saveAs_action = QtWidgets.QAction(mainWindow)
         self.saveAs_action.setObjectName("saveAs_action")
         self.exit_action = QtWidgets.QAction(mainWindow)
@@ -96,6 +96,8 @@ class Ui_MainWindow(object):
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
+        self.filename = ""
+
         QtWidgets.QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
@@ -109,6 +111,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.open_action.triggered.connect(self.readFromFile)
         self.save_action.triggered.connect(self.writeToFile)
+        self.saveAs_action.triggered.connect(self.writeToFile)
         self.add_button.pressed.connect(self.addElement)
         self.de_button.pressed.connect(self.deleteElement)
         self.change_button.pressed.connect(self.changeElement)
@@ -125,15 +128,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def deleteItem(self, delitem):
         row = self.model.rowCount()
 
-    def writeToFile(self, filename: str):
+    def writeToFile(self):
+        print(self.sender().objectName())
         savedialog = QtWidgets.QFileDialog(self)
         savedialog.setFileMode(savedialog.AnyFile)
         savedialog.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
 
-        filename = savedialog.getSaveFileName(self, "Выбор файла для сохранения", filter='(*.xml)')[0]
+        filename: str
+        file: QtCore.QFile
+
+        if self.sender().objectName() == "saveAs_action" or self.filename == "":
+            self.filename = savedialog.getSaveFileName(self, "Выбор файла для сохранения", filter='(*.xml)')[0]
+
+        filename = self.filename
         file = QtCore.QFile(filename)
 
-        if not file.open(QtCore.QIODevice.Append):
+        if not file.open(QtCore.QIODevice.WriteOnly):
             QtWidgets.QMessageBox.information(self, "Unable to save file", file.errorString())
             return
 
@@ -160,11 +170,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         stream.writeEndDocument()
         file.close()
 
-    def readFromFile(self, filename: str):
+    def readFromFile(self):
         opendialog = QtWidgets.QFileDialog(self)
         opendialog.setAcceptMode(QtWidgets.QFileDialog.AcceptOpen)
+        self.model.deleteAll()
 
-        filename, sfilter = opendialog.getOpenFileName(self, "Выбор файла для открытия")
+        self.filename = opendialog.getOpenFileName(self, "Выбор файла для открытия", filter='(*.xml)')[0]
+        filename = self.filename
         file = QtCore.QFile(filename)
 
         if not file.open(QtCore.QIODevice.ReadOnly) and filename is True:
@@ -173,7 +185,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             return
 
         xfile = QtCore.QFile(filename)
-        if xfile.open(QtCore.QFile.ReadOnly or QtCore.QFile.Text):
+        if xfile.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text):
 
             fxml = ET.parse(filename).getroot()
             persons = fxml.findall('person')
@@ -185,7 +197,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.addItem(input)
         xfile.close()
 
-        return filename
 
     def addElement(self):
         row = self.model.rowCount()
