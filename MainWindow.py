@@ -130,7 +130,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         savedialog.setFileMode(savedialog.AnyFile)
         savedialog.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
 
-        filename, sfilter = savedialog.getOpenFileName(self, "Выбор файла для сохранения")
+        filename = savedialog.getSaveFileName(self, "Выбор файла для сохранения", filter='(*.xml)')[0]
         file = QtCore.QFile(filename)
 
         if not file.open(QtCore.QIODevice.Append):
@@ -139,9 +139,26 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         data = self.model.getList()
 
-        for i in data:
-            for j in i:
-                file.write()
+        # root = ET.Element('table')
+        # tree = ET.ElementTree(root)
+        #
+        # for FIO in data:
+        #     person = ET.Element('person')
+        #     person.text = FIO
+        #     root.append(person)
+        # tree.write(open(filename, 'w'), encoding='unicode')
+
+        stream = QtCore.QXmlStreamWriter(file)
+        stream.setAutoFormatting(True)
+        stream.writeStartDocument()
+        stream.writeStartElement("table")
+        for el in data:
+            stream.writeStartElement("person")
+            stream.writeCharacters(el)
+            stream.writeEndElement()
+        stream.writeEndElement()
+        stream.writeEndDocument()
+        file.close()
 
     def readFromFile(self, filename: str):
         opendialog = QtWidgets.QFileDialog(self)
@@ -157,6 +174,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         xfile = QtCore.QFile(filename)
         if xfile.open(QtCore.QFile.ReadOnly or QtCore.QFile.Text):
+
             fxml = ET.parse(filename).getroot()
             persons = fxml.findall('person')
 
