@@ -215,11 +215,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         print(self.model.flags(index))
 
     def deleteElement(self):
-        row = self.model.rowCount()
-        print(row)
-        index = self.model.index(row)
+        if self.model.getList():
+            row = self.model.rowCount()
+            print(row)
+            index = self.model.index(row)
 
-        self.model.removeRows(row)
+            self.model.removeRows(row)
 
 
 class Delegate(QtWidgets.QStyledItemDelegate):
