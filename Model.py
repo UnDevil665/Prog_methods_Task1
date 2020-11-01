@@ -44,6 +44,7 @@ class Model (QtCore.QAbstractItemModel):
             row = index.row()
 
             self.myList[row] = value
+            self.dataChanged.emit(self.index(0, 0), self.index(self.rowCount() - 1, 0))
             return True
         else:
             return False
@@ -114,4 +115,3 @@ class Model (QtCore.QAbstractItemModel):
 
     def deleteAll(self):
         self.myList.clear()
-

@@ -116,6 +116,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.de_button.pressed.connect(self.deleteElement)
         self.change_button.pressed.connect(self.changeElement)
 
+        self.model.dataChanged.connect(self.modelModified)
+
     def addItem(self, newitem):
         row = self.model.rowCount()
         column = 0
@@ -170,7 +172,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         stream.writeEndElement()
         stream.writeEndDocument()
         file.close()
+
+        name = QtCore.QFileInfo(filename)
         self.setWindowModified(False)
+        self.setWindowTitle("Task1_Var5 " + name.fileName() + " [*]")
 
     def readFromFile(self):
         opendialog = QtWidgets.QFileDialog(self)
@@ -198,6 +203,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 print(p)
                 self.addItem(input)
         xfile.close()
+        name = QtCore.QFileInfo(filename)
+        self.setWindowModified(False)
+        self.setWindowTitle("Task1_Var5 " + name.fileName() + " [*]")
 
     def addElement(self):
         self.model.insertRows()
@@ -207,7 +215,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.selection.setCurrentIndex(index, QtCore.QItemSelectionModel.ClearAndSelect)
 
         self.listview.edit(index)
-        self.setWindowModified(True)
+
 
     def changeElement(self):
         index = self.selection.currentIndex()
@@ -218,6 +226,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             index = self.selection.currentIndex()
             if not index.data(Qt.DisplayRole) == "":
                 self.model.removeRow(index.row())
+
+    def modelModified(self):
+        self.setWindowModified(True)
+
 
 class Delegate(QtWidgets.QStyledItemDelegate):
 
