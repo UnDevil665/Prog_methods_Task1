@@ -199,10 +199,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         xfile.close()
 
     def addElement(self):
-        row = self.model.rowCount()
         self.model.insertRows()
+        row = self.model.rowCount() - 1
+
 
         index = self.model.index(row)
+
         self.listview.edit(index)
 
     def changeElement(self):
@@ -238,7 +240,7 @@ class Delegate(QtWidgets.QStyledItemDelegate):
         if editor.text() != "":
             model.setData(index, editor.text(), Qt.EditRole)
         else:
-            model.removeRows(index.row())
+            model.removeRows()
 
     def updateEditorGeometry(self, editor: QWidget, option: QtWidgets.QStyleOptionViewItem,
                              index: QtCore.QModelIndex) -> None:
