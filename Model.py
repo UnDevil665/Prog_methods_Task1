@@ -64,7 +64,7 @@ class Model (QtCore.QAbstractItemModel):
         if row is None:
             row = self.rowCount()
 
-        self.beginInsertRows(parent, row, count + row - 1,)
+        self.beginInsertRows(parent, row, count + row)
 
         for i in range(count):
             self.myList.insert(row, "")
