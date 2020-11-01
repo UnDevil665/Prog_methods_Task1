@@ -143,21 +143,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         filename = self.filename
         file = QtCore.QFile(filename)
-
         if not file.open(QtCore.QIODevice.WriteOnly):
-            QtWidgets.QMessageBox.information(self, "Unable to save file", file.errorString())
             return
 
         data = self.model.getList()
-
-        # root = ET.Element('table')
-        # tree = ET.ElementTree(root)
-        #
-        # for FIO in data:
-        #     person = ET.Element('person')
-        #     person.text = FIO
-        #     root.append(person)
-        # tree.write(open(filename, 'w'), encoding='unicode')
 
         stream = QtCore.QXmlStreamWriter(file)
         stream.setAutoFormatting(True)
@@ -178,24 +167,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.filename = opendialog.getOpenFileName(self, "Выбор файла для открытия", filter='(*.xml)')[0]
         filename = self.filename
-        file = QtCore.QFile(filename)
-
-        if not file.open(QtCore.QIODevice.ReadOnly) and filename is True:
-            QtWidgets.QMessageBox.information(self, "Unable to open file", file.errorString())
-            file.errorString()
+        print(filename)
+        xfile = QtCore.QFile(filename)
+        if not xfile.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text):
             return
 
-        xfile = QtCore.QFile(filename)
-        if xfile.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text):
+        fxml = ET.parse(filename).getroot()
+        persons = fxml.findall('person')
 
-            fxml = ET.parse(filename).getroot()
-            persons = fxml.findall('person')
+        for p in persons:
+            input = p.text
 
-            for p in persons:
-                input = p.text
-
-                print(p)
-                self.addItem(input)
+            print(p)
+            self.addItem(input)
         xfile.close()
 
     def addElement(self):
