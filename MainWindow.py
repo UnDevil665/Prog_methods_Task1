@@ -125,8 +125,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.model.setData(index, newitem)
 
-    def deleteItem(self, delitem):
-        row = self.model.rowCount()
+    def deleteItem(self):
+        index = self.selection.currentIndex()
+        self.model.removeRow(index.row())
 
     def writeToFile(self):
         print(self.sender().objectName())
@@ -197,53 +198,69 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.addItem(input)
         xfile.close()
 
-
     def addElement(self):
         row = self.model.rowCount()
         self.model.insertRows()
 
         index = self.model.index(row)
-
-        self.model.setData(index, 'my ass fuu', 0)
+        self.listview.edit(index)
 
     def changeElement(self):
-        print("change_element works")
-
         index = self.selection.currentIndex()
-        print(index.row(), index.column())
         self.listview.edit(index)
-        print(self.model.flags(index))
 
     def deleteElement(self):
         if self.model.getList():
-            row = self.model.rowCount()
-            print(row)
-            index = self.model.index(row)
-
-            self.model.removeRows(row)
-
+            index = self.selection.currentIndex()
+            self.model.removeRow(index.row())
 
 class Delegate(QtWidgets.QStyledItemDelegate):
 
     def createEditor(self, parent: QWidget, option: QtWidgets.QStyleOptionViewItem,
                      index: QtCore.QModelIndex) -> QtWidgets:
         print("createworks")
+        rx = QtCore.QRegExp('^.[^\0]+$')
+        validator = QtGui.QRegExpValidator(rx, parent)
+
         dlineedit = QtWidgets.QLineEdit(parent)
+        dlineedit.setValidator(validator)
         return dlineedit
 
     # Передача данных в редактор
     def setEditorData(self, editor: QWidget, index: QtCore.QModelIndex) -> None:
+        print("setEditorData works")
         value = index.model().data(index, QtCore.Qt.EditRole)
-        print(value)
         editor.setText(value)
-        print(editor.text())
-        print("seteditor works")
         editor.setFocus()
 
     def setModelData(self, editor: QWidget, model: QtCore.QAbstractItemModel, index: QtCore.QModelIndex):
-        model.setData(index, editor.text(), Qt.EditRole)
-        print("setmodel works")
+        print("setModelData works")
+        if editor.text() != "":
+            model.setData(index, editor.text(), Qt.EditRole)
+        else:
+            model.removeRows(index.row())
 
     def updateEditorGeometry(self, editor: QWidget, option: QtWidgets.QStyleOptionViewItem,
                              index: QtCore.QModelIndex) -> None:
         editor.setGeometry(option.rect)
+
+    def eventFilter(self, object, event):
+        if not object:
+            return False
+
+        if event.type() == QtCore.QEvent.KeyPress:
+            if event.matches(QtGui.QKeySequence.Cancel):
+                self.commitData.emit(object)
+                self.closeEditor.emit(object)
+                return True
+            elif event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+                self.commitData.emit(object)
+                self.closeEditor.emit(object)
+                return True
+
+        if event.type() == QtGui.QFocusEvent.FocusOut:
+            self.commitData.emit(object)
+            self.closeEditor.emit(object)
+            return True
+
+        return QWidget.eventFilter(self, object, event)
