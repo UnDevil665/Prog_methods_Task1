@@ -83,6 +83,10 @@ class Model (QtCore.QAbstractItemModel):
         print("removeRows on")
         if row == None:
             row = self.rowCount()
+
+        if self.rowCount() == 0:
+            return False
+
         self.beginRemoveRows(parent, row, count + row - 1)
 
         for i in range(count):

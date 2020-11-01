@@ -74,7 +74,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, mainWindow):
         _translate = QtCore.QCoreApplication.translate
-        mainWindow.setWindowTitle(_translate("mainWindow", "Task1_Var5"))
+        mainWindow.setWindowTitle(_translate("mainWindow", "Task1_Var5 [*]"))
         self.add_button.setStatusTip(_translate("mainWindow", "\"Add new string\""))
         self.add_button.setText(_translate("mainWindow", "Add"))
         self.change_button.setStatusTip(_translate("mainWindow", "\"Change selected string\""))
@@ -170,6 +170,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         stream.writeEndElement()
         stream.writeEndDocument()
         file.close()
+        self.setWindowModified(False)
 
     def readFromFile(self):
         opendialog = QtWidgets.QFileDialog(self)
@@ -202,10 +203,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.model.insertRows()
         row = self.model.rowCount() - 1
 
-
         index = self.model.index(row)
+        self.selection.setCurrentIndex(index, QtCore.QItemSelectionModel.ClearAndSelect)
 
         self.listview.edit(index)
+        self.setWindowModified(True)
 
     def changeElement(self):
         index = self.selection.currentIndex()
@@ -214,7 +216,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def deleteElement(self):
         if self.model.getList():
             index = self.selection.currentIndex()
-            self.model.removeRow(index.row())
+            if not index.data(Qt.DisplayRole) == "":
+                self.model.removeRow(index.row())
 
 class Delegate(QtWidgets.QStyledItemDelegate):
 
@@ -239,8 +242,9 @@ class Delegate(QtWidgets.QStyledItemDelegate):
         print("setModelData works")
         if editor.text() != "":
             model.setData(index, editor.text(), Qt.EditRole)
+
         else:
-            model.removeRows()
+            model.removeRows(index.row())
 
     def updateEditorGeometry(self, editor: QWidget, option: QtWidgets.QStyleOptionViewItem,
                              index: QtCore.QModelIndex) -> None:
