@@ -7,19 +7,19 @@ import PyQt5
 class Model (QtCore.QAbstractItemModel):
     def __init__(self, datain=None, *args, **kwargs):
         super(Model, self).__init__(*args, **kwargs)
-        self.myTable = []
+        self.myList = []
 
 #  Дописать условие если данных нет
     def rowCount(self, parent=QtCore.QModelIndex()) -> int:
-        return len(self.myTable)
+        return len(self.myList)
 
     def columnCount(self, parent=QtCore.QModelIndex()) -> int:
-        return 3
+        return 1
 
     def parent(self, child: QtCore.QModelIndex) -> QtCore.QModelIndex:
         return QtCore.QModelIndex()
 
-    def index(self, row: int, column: int, parent=QtCore.QModelIndex()) -> QtCore.QModelIndex:
+    def index(self, row: int, column: int = 0, parent=QtCore.QModelIndex()) -> QtCore.QModelIndex:
         if self.hasIndex(row, column):
             return self.createIndex(row, column)
         else:
@@ -29,23 +29,21 @@ class Model (QtCore.QAbstractItemModel):
         if not index.isValid():
             return QtCore.QVariant()
 
-        if (index.row() >= len(self.myTable)) or (index.row() < 0):
+        if (index.row() >= len(self.myList)) or (index.row() < 0):
             return QtCore.QVariant()
 
         if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
-            datas = self.myTable[index.row()][index.column()]
+            datas = self.myList[index.row()]
 
             return datas
 
     def setData(self, index: QtCore.QModelIndex, value, role: int = 0) -> bool:
         print('setData works')
 
-        if index.isValid() :
+        if index.isValid():
             row = index.row()
-            column = index.column()
-            data = self.myTable
-            for i in range(len(value)):
-                self.myTable[row][column + i] = value[i]
+
+            self.myList[row] = value
             return True
         else:
             return False
@@ -56,12 +54,7 @@ class Model (QtCore.QAbstractItemModel):
 
         if Qt.Orientation == Qt.Horizontal:
             if section == 0:
-                return 'Name'
-            elif section == 1:
-                return 'Second name'
-
-            elif section == 2:
-                return "third name"
+                return 'Data'
             else:
                 return None
         return None
@@ -74,7 +67,7 @@ class Model (QtCore.QAbstractItemModel):
         self.beginInsertRows(parent, row, count + row - 1,)
 
         for i in range(count):
-            self.myTable.insert(row, ["", "", ""])
+            self.myList.insert(row, "")
 
         self.endInsertRows()
         return True
@@ -82,20 +75,20 @@ class Model (QtCore.QAbstractItemModel):
     def insertRow(self, row: int, parent=QtCore.QModelIndex()) -> bool:
         print("insertRow on")
 
-        self.myTable.insert(row, ["", "", ""])
+        self.myList.insert(row, "")
 
         return True
 
-    def removeRows(self, row: int, count: int, parent=QtCore.QModelIndex()) -> bool:
+    def removeRows(self, row: int, count: int = 1, parent=QtCore.QModelIndex()) -> bool:
         print("removeRows on")
 
         self.beginRemoveRows(parent, row, count + row - 1)
 
         for i in range(count):
-            self.myTable.pop(row)
+            self.myList.pop(row - 1)
 
         self.endRemoveRows()
-
+        print(self.myList)
         return True
 
     def removeRow(self, row: int, parent=QtCore.QModelIndex()) -> bool:
@@ -108,10 +101,12 @@ class Model (QtCore.QAbstractItemModel):
     def flags(self, index: QtCore.QModelIndex):
         if not index.isValid():
             return Qt.ItemIsEnabled
-        return Qt.ItemIsEnabled | Qt.ItemIsEditable | Qt.ItemIsSelectable
 
+        return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
 
+    def getList(self):
+        return self.myList
 
-    def getTable(self):
-        return self.myTable
+    def deleteAll(self):
+        self.myList.clear()
 

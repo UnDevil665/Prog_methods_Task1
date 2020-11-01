@@ -9,6 +9,8 @@
 
 import xml.etree.ElementTree as ET
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QWidget
+from PyQt5.QtCore import Qt
 from Model import Model
 
 
@@ -22,7 +24,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(mainWindow.sizePolicy().hasHeightForWidth())
         mainWindow.setSizePolicy(sizePolicy)
         mainWindow.setMinimumSize(QtCore.QSize(371, 382))
-        mainWindow.setMaximumSize(QtCore.QSize(371, 382))
+        mainWindow.setMaximumSize(QtCore.QSize(10000, 10000))
         self.centralwidget = QtWidgets.QWidget(mainWindow)
         self.centralwidget.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.centralwidget.setObjectName("centralwidget")
@@ -37,9 +39,9 @@ class Ui_MainWindow(object):
         self.de_button = QtWidgets.QPushButton(self.centralwidget)
         self.de_button.setObjectName("de_button")
         self.gridLayout.addWidget(self.de_button, 0, 2, 1, 1)
-        self.tableview = QtWidgets.QTableView(self.centralwidget)
-        self.tableview.setObjectName("tableview")
-        self.gridLayout.addWidget(self.tableview, 1, 0, 1, 3)
+        self.listview = QtWidgets.QListView(self.centralwidget)
+        self.listview.setObjectName("listview")
+        self.gridLayout.addWidget(self.listview, 1, 0, 1, 3)
         mainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(mainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 371, 21))
@@ -56,7 +58,7 @@ class Ui_MainWindow(object):
         self.open_action.setShortcutContext(QtCore.Qt.WindowShortcut)
         self.open_action.setObjectName("open_action")
         self.save_action = QtWidgets.QAction(mainWindow)
-        self.save_action.setObjectName("saveAs_action")
+        self.save_action.setObjectName("save_action")
         self.saveAs_action = QtWidgets.QAction(mainWindow)
         self.saveAs_action.setObjectName("saveAs_action")
         self.exit_action = QtWidgets.QAction(mainWindow)
@@ -94,58 +96,87 @@ class Ui_MainWindow(object):
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
+        self.filename = ""
+
         QtWidgets.QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
         self.model = Model()
-        self.tableview.setModel(self.model)
-        self.tableview.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.listview.setModel(self.model)
+        self.selection = QtCore.QItemSelectionModel(self.model)
+        self.listview.setSelectionModel(self.selection)
+        self.delegate = Delegate()
+        self.listview.setItemDelegate(self.delegate)
+        self.listview.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 
         self.open_action.triggered.connect(self.readFromFile)
         self.save_action.triggered.connect(self.writeToFile)
+        self.saveAs_action.triggered.connect(self.writeToFile)
         self.add_button.pressed.connect(self.addElement)
+        self.de_button.pressed.connect(self.deleteElement)
         self.change_button.pressed.connect(self.changeElement)
 
-
-    def insertItem(self, row: int, column: int, newItem):
-        self.model.insertRows()
-        index = self.model.index(row, column)
-
-        self.model.setData(index, newItem)
-
-    def addItem(self, newItem):
+    def addItem(self, newitem):
         row = self.model.rowCount()
         column = 0
 
-        print(row, " ", column)
         self.model.insertRows()
         index = self.model.index(row, column)
 
-        self.model.setData(index, newItem)
+        self.model.setData(index, newitem)
 
-    def writeToFile(self, filename: str):
+    def deleteItem(self, delitem):
+        row = self.model.rowCount()
+
+    def writeToFile(self):
+        print(self.sender().objectName())
         savedialog = QtWidgets.QFileDialog(self)
         savedialog.setFileMode(savedialog.AnyFile)
         savedialog.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
 
-        filename, sfilter = savedialog.getOpenFileName(self, "Выбор файла для сохранения")
+        filename: str
+        file: QtCore.QFile
+
+        if self.sender().objectName() == "saveAs_action" or self.filename == "":
+            self.filename = savedialog.getSaveFileName(self, "Выбор файла для сохранения", filter='(*.xml)')[0]
+
+        filename = self.filename
         file = QtCore.QFile(filename)
 
-        if not file.open(QtCore.QIODevice.Append):
+        if not file.open(QtCore.QIODevice.WriteOnly):
             QtWidgets.QMessageBox.information(self, "Unable to save file", file.errorString())
             return
 
-        data = self.model.getTable()
+        data = self.model.getList()
 
-        for i in data:
-            for j in i:
-                file.write()
+        # root = ET.Element('table')
+        # tree = ET.ElementTree(root)
+        #
+        # for FIO in data:
+        #     person = ET.Element('person')
+        #     person.text = FIO
+        #     root.append(person)
+        # tree.write(open(filename, 'w'), encoding='unicode')
 
-    def readFromFile(self, filename: str):
+        stream = QtCore.QXmlStreamWriter(file)
+        stream.setAutoFormatting(True)
+        stream.writeStartDocument()
+        stream.writeStartElement("table")
+        for el in data:
+            stream.writeStartElement("person")
+            stream.writeCharacters(el)
+            stream.writeEndElement()
+        stream.writeEndElement()
+        stream.writeEndDocument()
+        file.close()
+
+    def readFromFile(self):
         opendialog = QtWidgets.QFileDialog(self)
         opendialog.setAcceptMode(QtWidgets.QFileDialog.AcceptOpen)
+        self.model.deleteAll()
 
-        filename, sfilter = opendialog.getOpenFileName(self, "Выбор файла для открытия")
+        self.filename = opendialog.getOpenFileName(self, "Выбор файла для открытия", filter='(*.xml)')[0]
+        filename = self.filename
         file = QtCore.QFile(filename)
 
         if not file.open(QtCore.QIODevice.ReadOnly) and filename is True:
@@ -154,77 +185,65 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             return
 
         xfile = QtCore.QFile(filename)
-        if xfile.open(QtCore.QFile.ReadOnly or QtCore.QFile.Text):
+        if xfile.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text):
+
             fxml = ET.parse(filename).getroot()
             persons = fxml.findall('person')
 
             for p in persons:
-                input = [p.find('name').text,
-                         p.find('surname').text,
-                         p.find('thirdname').text]
+                input = p.text
 
-                print(str(self.model.rowCount()) + " " + str(self.model.columnCount()))
-
-                print(self.model.myTable)
+                print(p)
                 self.addItem(input)
         xfile.close()
 
-        return filename
 
     def addElement(self):
         row = self.model.rowCount()
-        column = 0
         self.model.insertRows()
 
+        index = self.model.index(row)
 
-        index = self.model.index(row, column)
-
-        self.model.setData(index, ['my', 'ass', 'fuu'], 2)
-
-        # edit = QtWidgets.QItemDelegate(self)
-        #
-        # edit.createEditor(self, QtWidgets)
-        # edit.setEditorData()
+        self.model.setData(index, 'my ass fuu', 0)
 
     def changeElement(self):
         print("change_element works")
-        delegate = Delegate(self)
-        self.tableview.setItemDelegate(delegate)
 
-
-        row = 0
-        column = 0
-
-        index = self.model.index(row, column)
-        editor = delegate.createEditor(self.tableview, index)
-        delegate.setEditorData(index, editor)
-
-        delegate.setModelData(editor, self.model, index)
-
+        index = self.selection.currentIndex()
+        print(index.row(), index.column())
+        self.listview.edit(index)
         print(self.model.flags(index))
 
-class Delegate(QtWidgets.QStyledItemDelegate):
-    def __init__(self, parent=None):
-        print("init works")
-        super().__init__(parent)
+    def deleteElement(self):
+        if self.model.getList():
+            row = self.model.rowCount()
+            print(row)
+            index = self.model.index(row)
 
-    def createEditor(self, parent: QtWidgets.QWidget, index: QtCore.QModelIndex,
-                     option: QtWidgets.QStyleOptionViewItem = None) -> QtWidgets.QWidget:
+            self.model.removeRows(row)
+
+
+class Delegate(QtWidgets.QStyledItemDelegate):
+
+    def createEditor(self, parent: QWidget, option: QtWidgets.QStyleOptionViewItem,
+                     index: QtCore.QModelIndex) -> QtWidgets:
         print("createworks")
-        self.dlineedit = QtWidgets.QLineEdit(parent)
-        return self.dlineedit
+        dlineedit = QtWidgets.QLineEdit(parent)
+        return dlineedit
 
     # Передача данных в редактор
-    def setEditorData(self, index: QtCore.QModelIndex, editor: QtWidgets.QWidget) -> None:
+    def setEditorData(self, editor: QWidget, index: QtCore.QModelIndex) -> None:
         value = index.model().data(index, QtCore.Qt.EditRole)
-
         print(value)
-        self.dlineedit.setText(value)
-        print(self.dlineedit.text())
+        editor.setText(value)
+        print(editor.text())
         print("seteditor works")
+        editor.setFocus()
 
-    def setModelData(self, editor: QtWidgets.QWidget, model: QtCore.QAbstractItemModel,
-                     index: QtCore.QModelIndex) -> None:
-        if not editor.hasFocus():
-            model.setData(index, [self.dlineedit.text(), self.dlineedit.text(), self.dlineedit.text()])
-            print("setmodel works")
+    def setModelData(self, editor: QWidget, model: QtCore.QAbstractItemModel, index: QtCore.QModelIndex):
+        model.setData(index, editor.text(), Qt.EditRole)
+        print("setmodel works")
+
+    def updateEditorGeometry(self, editor: QWidget, option: QtWidgets.QStyleOptionViewItem,
+                             index: QtCore.QModelIndex) -> None:
+        editor.setGeometry(option.rect)
