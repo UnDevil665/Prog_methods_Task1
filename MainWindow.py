@@ -96,7 +96,7 @@ class Ui_MainWindow(object):
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
-        self.filename = ""
+        self.filepath = ""
 
         QtWidgets.QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
@@ -137,29 +137,23 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         savedialog.setFileMode(savedialog.AnyFile)
         savedialog.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
 
-        filename: str
+        filepath: str
         file: QtCore.QFile
 
-        if self.sender().objectName() == "saveAs_action" or self.filename == "":
-            self.filename = savedialog.getSaveFileName(self, "Выбор файла для сохранения", filter='(*.xml)')[0]
+        if self.sender().objectName() == "saveAs_action" or self.filepath == "":
+            self.filepath = savedialog.getSaveFileName(self, "Выбор файла для сохранения", filter='(*.xml)')[0]
 
-        filename = self.filename
-        file = QtCore.QFile(filename)
+        filepath = self.filepath
+        file = QtCore.QFile(filepath)
+
+        if not filepath:
+            return
 
         if not file.open(QtCore.QIODevice.WriteOnly):
             QtWidgets.QMessageBox.information(self, "Unable to save file", file.errorString())
             return
 
         data = self.model.getList()
-
-        # root = ET.Element('table')
-        # tree = ET.ElementTree(root)
-        #
-        # for FIO in data:
-        #     person = ET.Element('person')
-        #     person.text = FIO
-        #     root.append(person)
-        # tree.write(open(filename, 'w'), encoding='unicode')
 
         stream = QtCore.QXmlStreamWriter(file)
         stream.setAutoFormatting(True)
@@ -173,39 +167,51 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         stream.writeEndDocument()
         file.close()
 
-        name = QtCore.QFileInfo(filename)
+        fileinfo = QtCore.QFileInfo(filepath)
+
+        if stream.hasError():
+            QtWidgets.QMessageBox.information(self, "Unable to write data in %s" % fileinfo.fileName(), "Something was "
+                                                                                                        "wrong")
+
         self.setWindowModified(False)
-        self.setWindowTitle("Task1_Var5 " + name.fileName() + " [*]")
+        self.setWindowTitle("Task1_Var5 " + fileinfo.fileName() + " [*]")
 
     def readFromFile(self):
         opendialog = QtWidgets.QFileDialog(self)
         opendialog.setAcceptMode(QtWidgets.QFileDialog.AcceptOpen)
         self.model.deleteAll()
 
-        self.filename = opendialog.getOpenFileName(self, "Выбор файла для открытия", filter='(*.xml)')[0]
-        filename = self.filename
-        file = QtCore.QFile(filename)
+        self.filepath = opendialog.getOpenFileName(self, "Выбор файла для открытия", filter='(*.xml)')[0]
 
-        if not file.open(QtCore.QIODevice.ReadOnly) and filename is True:
-            QtWidgets.QMessageBox.information(self, "Unable to open file", file.errorString())
-            file.errorString()
+        filepath = self.filepath
+        if not filepath:
             return
 
-        xfile = QtCore.QFile(filename)
-        if xfile.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text):
+        xfile = QtCore.QFile(filepath)
+        if not xfile.open(QtCore.QFile.ReadOnly):
+            QtWidgets.QMessageBox.information(self, "Unable to save file", xfile.errorString())
+            return
 
-            fxml = ET.parse(filename).getroot()
-            persons = fxml.findall('person')
+        reader = QtCore.QXmlStreamReader(xfile)
 
-            for p in persons:
-                input = p.text
+        while not reader.atEnd() and not reader.hasError():
+            token = reader.readNext()
+            print(token, reader.name())
+            if token == QtCore.QXmlStreamReader.StartElement:
+                if reader.name() == "person":
+                    element = reader.readElementText()
+                    print(element)
+                    self.addItem(element)
 
-                print(p)
-                self.addItem(input)
+        fileinfo = QtCore.QFileInfo(filepath)
+
+        if reader.hasError():
+            QtWidgets.QMessageBox.information(self, "Unable to parse %s" % fileinfo.fileName(), reader.errorString())
+
         xfile.close()
-        name = QtCore.QFileInfo(filename)
+
         self.setWindowModified(False)
-        self.setWindowTitle("Task1_Var5 " + name.fileName() + " [*]")
+        self.setWindowTitle("Task1_Var5 " + fileinfo.fileName() + " [*]")
 
     def addElement(self):
         self.model.insertRows()
@@ -215,7 +221,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.selection.setCurrentIndex(index, QtCore.QItemSelectionModel.ClearAndSelect)
 
         self.listview.edit(index)
-
 
     def changeElement(self):
         index = self.selection.currentIndex()
